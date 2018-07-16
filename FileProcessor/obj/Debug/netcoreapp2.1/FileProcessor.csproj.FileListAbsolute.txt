@@ -1,0 +1,11 @@
+C:\Code\FileProcessor\FileProcessor\bin\Debug\netcoreapp2.1\FileProcessor.deps.json
+C:\Code\FileProcessor\FileProcessor\bin\Debug\netcoreapp2.1\FileProcessor.runtimeconfig.json
+C:\Code\FileProcessor\FileProcessor\bin\Debug\netcoreapp2.1\FileProcessor.runtimeconfig.dev.json
+C:\Code\FileProcessor\FileProcessor\bin\Debug\netcoreapp2.1\FileProcessor.dll
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.csprojAssemblyReference.cache
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.csproj.CoreCompileInputs.cache
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.AssemblyInfoInputs.cache
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.AssemblyInfo.cs
+C:\Code\FileProcessor\FileProcessor\bin\Debug\netcoreapp2.1\FileProcessor.pdb
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.dll
+C:\Code\FileProcessor\FileProcessor\obj\Debug\netcoreapp2.1\FileProcessor.pdb
