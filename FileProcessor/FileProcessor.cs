@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
 using Dapper;
 
 namespace FileProcessor
@@ -80,8 +77,6 @@ namespace FileProcessor
                 using (var ms = new MemoryStream(bytes))
                 {
                     result = Image.FromStream(ms);
-                    //System.Drawing.ImageConverter converter = new System.Drawing.ImageConverter();
-                    //Image img = (Image)converter.ConvertFrom(byteArrayIn);
                 }
                 return result;
             }
@@ -138,29 +133,66 @@ namespace FileProcessor
 
                     else if (fileType.ToLower() == "pdf")
                     {
-                        File.WriteAllBytes($@"C:/Code/FileProcessor/Attachment/Pdf/{companyID}/{id}.pdf", byteArray);
+                        File.WriteAllBytes($@"{Path}/Attachment/{companyID}/Pdf/{id}.pdf", byteArray);
                     }
                 }
             }
         }
 
+        public const string Path = "C:/Code/FileProcessor";
         public static void GenerateImageFile(ImageFormat imageFormat, AttachmentModel attachment, int companyID, int id)
         {
+            bool pathExists = Directory.Exists(Path);
+            if (!pathExists)
+            {
+                throw new Exception("Please check your project path and custmise the path in the script.");
+            }
+            string attachmentPath = $@"{Path}/Attachment";
+            bool attachmentPathExists = Directory.Exists(attachmentPath);
+
+            if (!attachmentPathExists)
+            {
+                Directory.CreateDirectory(attachmentPath);
+            }
+            string smallPath = $@"{Path}/Attachment/{companyID}/Small";
+            bool smallPathExists = Directory.Exists(smallPath);
+            if (!smallPathExists)
+            {
+                Directory.CreateDirectory(smallPath);
+            }
+            string largePath = $@"{Path}/Attachment/{companyID}/Large";
+            bool largePathExists = Directory.Exists(largePath);
+            if (!largePathExists)
+            {
+                Directory.CreateDirectory(largePath);
+            }
+            string rawPath = $@"{Path}/Attachment/{companyID}/Raw";
+            bool rawPathExists = Directory.Exists(rawPath);
+            if (!rawPathExists)
+            {
+                Directory.CreateDirectory(rawPath);
+            }
+            string pdfPath = $@"{Path}/Attachment/{companyID}/Pdf";
+            bool pdfPathExists = Directory.Exists(pdfPath);
+            if (!pdfPathExists)
+            {
+                Directory.CreateDirectory(pdfPath);
+            }
+
             int smallWidth = 200;
             int smallheight = 130;
             var smallImage = ConvertBinaryFile(attachment, smallWidth, smallheight, false);
-            smallImage.Save($@"C:/Code/FileProcessor/Attachment/Small/{companyID}/{id}_200x130.{imageFormat}", imageFormat);
+            smallImage.Save($@"{Path}/Attachment/{companyID}/Small/{id}_200x130.{imageFormat}", imageFormat);
 
             int largeWidth = 1024;
             int largeheight = 666;
             var largeImage = ConvertBinaryFile(attachment, largeWidth, largeheight, false);
-            largeImage.Save($@"C:/Code/FileProcessor/Attachment/Large/{companyID}/{id}_1024x666.{imageFormat}", imageFormat);
-
+            largeImage.Save($@"{Path}/Attachment/{companyID}/Large/{id}_1024x666.{imageFormat}", imageFormat);
 
             int rawWidth = 0;
             int rawheight = 0;
             var rawImage = ConvertBinaryFile(attachment, rawWidth, rawheight, true);
-            rawImage.Save($@"C:/Code/FileProcessor/Attachment/Raw/{companyID}/{id}_raw.{imageFormat}", imageFormat);
+            rawImage.Save($@"{Path}/Attachment/{companyID}/Raw/{id}_raw.{imageFormat}", imageFormat);
         }
     }
 }
