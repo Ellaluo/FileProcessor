@@ -17,6 +17,14 @@ namespace FileProcessor
 
     public class FileProcessor
     {
+        public const string ConnectionString = "Server=;Database=;User Id=;Password=;MultipleActiveResultSets=true";
+        public const int CompanyId = 567;
+        public const string Path = "C:/Code/FileProcessor";
+        public const int SmallWidth = 200;
+        public const int Smallheight = 130;
+        public const int LargeWidth = 1024;
+        public const int Largeheight = 666;
+
         public static Bitmap ResizeImage(Image image, int width, int height)
         {
             var destRect = new Rectangle(0, 0, width, height);
@@ -51,20 +59,18 @@ namespace FileProcessor
             return result.ToArray();
         }
 
-        public static Image ConvertBinaryFile(AttachmentModel attachment, int width, int height, bool raw)
+        public static Image ConvertBinaryFile(AttachmentModel attachment, bool raw, int? width, int? height)
         {
             if (!raw)
             {
                 var img = ByteArrayToImage(attachment.ContentAsBytes);
-                img = ResizeImage(img, width, height);
+                if (width.HasValue && height.HasValue && width.Value > 0 && height.Value > 0) img = ResizeImage(img, width.Value, height.Value);
                 return img;
             }
             else
             {
                 var img = ByteArrayToImage(attachment.ContentAsBytes);
-                height = img.Height;
-                width = img.Width;
-                img = ResizeImage(img, width, height);
+                img = ResizeImage(img, img.Width, img.Height);
                 return img;
             }
         }
@@ -90,8 +96,6 @@ namespace FileProcessor
 
         public static void Main(string[] args)
         {
-            string connectionString = "Server=;Database=;User Id=;Password=;MultipleActiveResultSets=true";
-            int companyID = 567;
             var sqlBase = @"
                 SELECT FileType, att.[Attachment] AS ContentAsBytes,
                 att.[RecordID] AS RecordID 
@@ -103,11 +107,11 @@ namespace FileProcessor
                 (SELECT RecordID FROM Company WHERE RecordID = @companyID))
                 AND (FileType = 'jpg' or FileType = 'png' or FileType = 'pdf')";
 
-            using (var connection = new SqlConnection(connectionString))
+            using (var connection = new SqlConnection(ConnectionString))
             {
                 var attachmenList = connection.QueryAsync<AttachmentModel>(
                     sqlBase,
-                    new { companyID }
+                    new { companyID = CompanyId }
                 );
 
                 foreach (var attachment in attachmenList.Result)
@@ -122,24 +126,23 @@ namespace FileProcessor
                         {
                             case "jpg":
                                 imageFormat = ImageFormat.Jpeg;
-                                GenerateImageFile(imageFormat, attachment, companyID, id);
+                                GenerateImageFile(imageFormat, attachment, CompanyId, id);
                                 break;
                             case "png":
                                 imageFormat = ImageFormat.Png;
-                                GenerateImageFile(imageFormat, attachment, companyID, id);
+                                GenerateImageFile(imageFormat, attachment, CompanyId, id);
                                 break;
                         }
                     }
 
                     else if (fileType.ToLower() == "pdf")
                     {
-                        File.WriteAllBytes($@"{Path}/Attachment/{companyID}/Pdf/{id}.pdf", byteArray);
+                        File.WriteAllBytes($@"{Path}/Attachment/{CompanyId}/Pdf/{id}.pdf", byteArray);
                     }
                 }
             }
         }
 
-        public const string Path = "C:/Code/FileProcessor";
         public static void GenerateImageFile(ImageFormat imageFormat, AttachmentModel attachment, int companyID, int id)
         {
             bool pathExists = Directory.Exists(Path);
@@ -179,19 +182,13 @@ namespace FileProcessor
                 Directory.CreateDirectory(pdfPath);
             }
 
-            int smallWidth = 200;
-            int smallheight = 130;
-            var smallImage = ConvertBinaryFile(attachment, smallWidth, smallheight, false);
+            var smallImage = ConvertBinaryFile(attachment, false, SmallWidth, Smallheight);
             smallImage.Save($@"{Path}/Attachment/{companyID}/Small/{id}_200x130.{imageFormat}", imageFormat);
 
-            int largeWidth = 1024;
-            int largeheight = 666;
-            var largeImage = ConvertBinaryFile(attachment, largeWidth, largeheight, false);
+            var largeImage = ConvertBinaryFile(attachment, false, LargeWidth, Largeheight);
             largeImage.Save($@"{Path}/Attachment/{companyID}/Large/{id}_1024x666.{imageFormat}", imageFormat);
 
-            int rawWidth = 0;
-            int rawheight = 0;
-            var rawImage = ConvertBinaryFile(attachment, rawWidth, rawheight, true);
+            var rawImage = ConvertBinaryFile(attachment, true, null, null);
             rawImage.Save($@"{Path}/Attachment/{companyID}/Raw/{id}_raw.{imageFormat}", imageFormat);
         }
     }
